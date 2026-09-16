@@ -1,0 +1,7 @@
+.venv
+.env
+ui/node_modules
+engine/terminal.db*
+engine/history.db
+engine/static
+**/__pycache__

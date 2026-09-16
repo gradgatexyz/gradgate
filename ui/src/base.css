@@ -1,0 +1,5 @@
+/* page reset; everything visible is styled in terminal/gg.css under .gg */
+:root { color-scheme: dark; }
+/* `clip`, never `hidden`: overflow-x: hidden makes overflow-y compute to auto, which turns body into a scroll
+   container and kills every position: sticky on the page (the header, the docs nav, the coin card). */
+html, body { margin: 0; background: #000; overflow-x: clip; }

@@ -1,0 +1,531 @@
+/* gradgate terminal. Everything is scoped under .gg.
+
+   Type rules: twelve steps, three line-heights (1.15 headings · 1.45 mono and rows · 1.6 prose),
+   letter-spacing follows size (-.03em from 28px, -.02em at 20px, 0 below), one label style, 11.5px floor. */
+
+.gg {
+  --gg-bg: #000;
+  --gg-card: #0a0a0b;
+  --gg-deep: #070708;
+  --gg-input: #0d0d0e;
+  --gg-btn: #101011;
+  --gg-text: #d5d9db;
+  --gg-head: #e4e8ea;
+  --gg-mid: #c4c8cc;
+  --gg-brand: #c8cdd0;
+  --gg-mute: #8b9096;
+  --gg-soft: #9aa0a5;
+  --gg-mint: #2ee89a;
+  --gg-red: #ff5d4a;
+  --gg-amber: #ffb020;
+  --gg-blue: #7c8cff;
+  --gg-l06: rgba(255, 255, 255, .06);
+  --gg-l07: rgba(255, 255, 255, .07);
+  --gg-l09: rgba(255, 255, 255, .09);
+
+  --gg-sans: Manrope, 'Helvetica Neue', Helvetica, sans-serif;
+  --gg-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --gg-disp: 'Space Grotesk', Manrope, sans-serif;
+
+  --gg-d40: 40px;    /* disp 600 / -.03em  / 1.15 */
+  --gg-d28: 28px;    /* disp 600 / -.03em  / 1.15 */
+  --gg-d20: 20px;    /* disp 600 / -.02em  / 1.15 */
+  --gg-m20: 20px;    /* mono 500 / -.02em  / 1.15 · loudest number in the app */
+  --gg-m14: 14px;    /* mono 500 / -.02em  / 1.15 · figures in cards */
+  --gg-m12: 12.5px;  /* mono 400 / 0       / 1.45 · feed rows, facts */
+  --gg-s17: 17px;    /* sans 400 / 0       / 1.6  · lead paragraph */
+  --gg-s15: 15px;    /* sans 400 / 0       / 1.6  · body */
+  --gg-s13: 13px;    /* sans 400 / 0       / 1.45 · captions, secondary rows */
+  --gg-btn-t: 14px;  /* sans 700 / 0       / 1    · buttons only */
+  --gg-lbl: 11.5px;  /* mono 700 / .05em   / 1.45 · uppercase labels, the floor */
+
+  --gg-lh-head: 1.15;
+  --gg-lh-row: 1.45;
+  --gg-lh-prose: 1.6;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.gg {
+  min-height: 100vh;
+  background: #000;
+  background-image: radial-gradient(rgba(255, 255, 255, .04) 1px, transparent 0);
+  background-size: 28px 28px;
+  color: var(--gg-text);
+  font-family: var(--gg-sans);
+  letter-spacing: -.011em;
+  /* the shell is a column so a short page still fills the viewport and the footer sits at its bottom edge */
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+.gg * { box-sizing: border-box; }
+.gg a { color: #f2f4f5; text-decoration: none; }
+.gg a:hover { color: #f0f3f4; }
+.gg :where(button) { font: inherit; }   /* zero specificity: every button class below keeps its own font */
+.gg input::placeholder { color: #8b9096; }
+.gg .mono { font-family: var(--gg-mono); }
+/* `width: 100%` is load-bearing: .gg is a flex column, and auto cross-axis margins turn off stretch, so without it a
+   .wrap section shrinks to its content — the feed row ended up 1226px inside a 1280px shell, out of line with the
+   header and the strategy cards above it. */
+.gg .wrap { width: 100%; max-width: 1280px; margin: 0 auto; }
+
+/* ---- the type scale as classes ---- */
+.gg-lbl { font-family: var(--gg-mono); font-size: var(--gg-lbl); font-weight: 700; letter-spacing: .05em;
+          text-transform: uppercase; line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-h1 { font-family: var(--gg-disp); font-size: var(--gg-d40); font-weight: 600; letter-spacing: -.03em; line-height: var(--gg-lh-head); color: var(--gg-head); }
+.gg-h2 { font-family: var(--gg-disp); font-size: var(--gg-d28); font-weight: 600; letter-spacing: -.03em; line-height: var(--gg-lh-head); color: var(--gg-head); }
+.gg-h3 { font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); }
+.gg-body { font-size: var(--gg-s15); line-height: var(--gg-lh-prose); color: var(--gg-soft); }
+.gg-cap { font-size: var(--gg-s13); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-fig { font-family: var(--gg-mono); font-size: var(--gg-fig); font-weight: 500; letter-spacing: -.045em; line-height: 1; color: #f2f5f6; }
+.gg-num { font-family: var(--gg-mono); font-size: var(--gg-m20); font-weight: 500; letter-spacing: -.02em; line-height: var(--gg-lh-head); }
+.gg-num-s { font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; letter-spacing: -.02em; line-height: var(--gg-lh-head); }
+.gg-btn-t { font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; }
+
+@keyframes ggtype { from { max-width: 0 } to { max-width: 170px } }
+@keyframes ggcaret { 0%, 49% { opacity: 1 } 50%, 99% { opacity: 0 } 100% { opacity: 1 } }
+@keyframes ggpulse { 0%, 100% { opacity: 1 } 50% { opacity: .2 } }
+@keyframes ggsheetin { from { transform: translateX(100%) } to { transform: none } }
+@keyframes ggsheetout { from { transform: none } to { transform: translateX(100%) } }
+@keyframes ggfadein { from { opacity: 0 } to { opacity: 1 } }
+@keyframes ggfadeout { from { opacity: 1 } to { opacity: 0 } }
+@keyframes ggflash { 0% { background: rgba(255, 255, 255, .3); color: #fff } 100% { background: transparent } }
+@keyframes ggblinkcaret { 0%, 49% { opacity: 1 } 50%, 100% { opacity: .12 } }
+@keyframes ggrowin { from { opacity: 0; transform: translateY(-6px) } to { opacity: 1; transform: none } }
+.gg .flash { animation: ggflash .55s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .gg .flash, .gg .row-in { animation: none !important; } }
+
+/* ---- header ---- */
+.gg-hdr { border-bottom: 1px solid var(--gg-l06); background: rgba(0, 0, 0, .72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); position: sticky; top: 0; z-index: 20; }
+.gg-hdr .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 14px 28px; min-height: 68px; }
+.gg-logo { display: inline-flex; align-items: center; gap: 10px; }
+/* the mascot: six 64 px frames in one strip; the header pins frame 2 (background-size stays a whole multiple of 64) */
+.gg-sprite { width: 28px; height: 28px; flex: none; background-image: url(/gradgate-logo-strip.png); background-size: 168px 28px; background-position-x: -56px; background-repeat: no-repeat; image-rendering: pixelated; }
+.gg-mark { display: inline-flex; align-items: baseline; font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 700; letter-spacing: -.045em; line-height: 1; color: var(--gg-head); cursor: pointer; }
+.gg-mark .t { display: inline-block; overflow: hidden; white-space: nowrap; animation: ggtype .55s steps(9, end) both; }
+.gg-mark .c { color: #f2f4f5; animation: ggcaret .5s steps(1, end) 4 .55s both; }
+.gg-nav { display: flex; align-items: center; gap: 4px; font-size: var(--gg-s13); }
+.gg-nav a { display: flex; align-items: baseline; gap: 5px; padding: 6px 11px; border-radius: 7px; font-weight: 600; color: var(--gg-mute); background: transparent; }
+.gg-nav a:hover { color: var(--gg-head); }
+.gg-nav a.on { color: var(--gg-head); background: rgba(255, 255, 255, .06); }
+.gg-nav a .sl { font-family: var(--gg-mono); font-size: var(--gg-m14); color: var(--gg-brand); }
+.gg-mode { display: inline-flex; align-items: center; height: 26px; padding: 0 9px; border: 1px solid var(--gg-l09); border-radius: 7px; font-family: var(--gg-mono); font-size: var(--gg-lbl); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--gg-mute); white-space: nowrap; }
+.gg-mode.live { border-color: rgba(255, 93, 74, .5); color: var(--gg-red); }
+.gg-live { margin-left: auto; display: flex; align-items: center; gap: 8px; white-space: nowrap; height: 30px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--gg-l09); background: var(--gg-input); font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--gg-mint); animation: ggpulse 1.8s infinite; flex: none; }
+.gg-dot.off { background: var(--gg-red); animation: none; }
+.gg-dot.warm { background: var(--gg-amber); }
+.gg-cta { display: flex; align-items: center; gap: 8px; white-space: nowrap; height: 32px; padding: 0 16px; border-radius: 8px; border: 0; background: var(--gg-brand); color: #0a0b0c !important; font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; cursor: pointer; }
+.gg-cta:hover { opacity: .88; }
+.gg-cta .d { width: 7px; height: 7px; border-radius: 999px; background: rgba(10, 11, 12, .45); }
+
+/* ---- strategies ---- */
+.gg-strats { padding: 26px 28px 0; }
+.gg-sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.gg-h { font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); }
+.gg-sub { font-size: var(--gg-s13); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-sec-head .r { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.gg-ghost { font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; padding: 8px 13px; border-radius: 8px; border: 1px solid var(--gg-l09); background: transparent; color: var(--gg-brand); cursor: pointer; }
+.gg-ghost:hover { border-color: #3b3f45; color: var(--gg-head); }
+.gg-ghost:disabled { opacity: .4; cursor: default; }
+/* five columns, the fifth adds a strategy */
+.gg-cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.gg-card { min-width: 0; border: 1px solid var(--gg-l07); border-radius: 14px; background: transparent; padding: 14px 16px 15px; cursor: pointer; transition: border-color .2s ease, background .2s ease, box-shadow .2s ease; }
+.gg-card:hover { background: rgba(255, 255, 255, .02); }
+.gg-card.sel { border-color: rgba(255, 255, 255, .28); }
+.gg-card.on { box-shadow: inset 0 0 0 1px var(--gg-mint); border-color: transparent; }   /* running: the toggle alone read as off */
+.gg-card .top { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.gg-card .sd { width: 6px; height: 6px; border-radius: 999px; flex: none; background: #4a4f55; transition: background .24s ease; }
+.gg-card .sd.on { background: var(--gg-mint); }
+/* the name has its own line: it never truncates and never collides with the id */
+.gg-card .nm { margin-top: 10px; font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-mute); overflow-wrap: anywhere; }
+.gg-card .nm.on { color: var(--gg-head); }
+.gg-card-new { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; border: 1px dashed rgba(255, 255, 255, .14); background: transparent; text-align: left; font: inherit; }
+.gg-card-new:hover { border-color: rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .02); }
+.gg-card-new:disabled { opacity: .5; cursor: default; }
+.gg-card-new .t { font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); }
+.gg-card-new .b { font-size: var(--gg-s13); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+/* five columns hold at 1440; below that they wrap rather than squeeze (narrow screens needed a rule) */
+@media (max-width: 1240px) { .gg-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .gg-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .gg-cards { grid-template-columns: minmax(0, 1fr); } }
+.gg-sw { margin-left: auto; flex: none; width: 28px; height: 17px; border-radius: 999px; background: rgba(255, 255, 255, .08); position: relative; transition: background .24s cubic-bezier(.16, .84, .32, 1); border: 0; padding: 0; cursor: pointer; }
+.gg-sw i { position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 999px; background: var(--gg-mute); transition: left .24s cubic-bezier(.16, .84, .32, 1), background .24s ease; }
+.gg-sw.on { background: rgba(41, 192, 122, .32); }
+.gg-sw.on i { left: 13px; background: var(--gg-mint); }
+.gg-card .mid { display: flex; align-items: flex-end; gap: 10px; margin-top: 12px; }
+.gg-card .pnl { font-family: var(--gg-mono); font-size: var(--gg-m20); font-weight: 500; letter-spacing: -.02em; line-height: var(--gg-lh-head); padding: 1px 4px; margin: -1px -4px; border-radius: 3px; }
+.gg-mini { margin-left: auto; flex: none; font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--gg-l09); background: transparent; color: var(--gg-mute); cursor: pointer; }
+.gg-mini:hover { border-color: #3b3f45; color: var(--gg-head); }
+.gg-card .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--gg-l06); }
+.gg-card .stat { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.gg-card .stat .l { font-family: var(--gg-mono); font-size: var(--gg-lbl); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-card .stat .v { margin-left: auto; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-text); white-space: nowrap; padding: 1px 3px; margin-right: -3px; border-radius: 3px; }
+.gg-more { width: 100%; margin-top: 10px; padding: 11px 0; border-radius: 12px; border: 1px dashed rgba(255, 255, 255, .12); background: transparent; color: var(--gg-soft); font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; cursor: pointer; }
+.gg-more:hover { border-color: #3b3f45; color: var(--gg-head); }
+
+/* ---- the metrics band: one non-wrapping scrolling row on its own ground ---- */
+.gg-band { margin-top: 20px; border-top: 1px solid var(--gg-l07); border-bottom: 1px solid var(--gg-l07); background: var(--gg-deep); }
+.gg-band > .wrap { display: flex; flex-wrap: nowrap; overflow-x: auto; padding: 0 28px; scrollbar-width: none; -ms-overflow-style: none; }
+.gg-band > .wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.gg-band-item { flex: none; display: flex; align-items: baseline; gap: 9px; white-space: nowrap; padding: 13px 22px 13px 0; margin-right: 22px; border-left: 1px solid var(--gg-l06); }
+.gg-band-item:first-child { border-left: 0; }
+.gg-band-item > .gg-lbl { padding-left: 0; }
+.gg-band-item:not(:first-child) > .gg-lbl { padding-left: 22px; }
+.gg-band-item .v { font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); padding: 1px 4px; margin: -1px -4px; border-radius: 3px; }
+
+/* ---- home: feed + token ---- */
+.gg-home { display: flex; flex-wrap: wrap; gap: 18px; padding: 18px 28px 34px; align-items: flex-start; }
+.gg-feed { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.gg-feed-head { display: flex; align-items: center; gap: 8px; padding: 18px 20px; flex-wrap: wrap; }
+.gg-feed-head .meta { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-feed-head .f { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.gg-filter { font-family: var(--gg-mono); font-size: var(--gg-m12); font-weight: 400; line-height: var(--gg-lh-row); padding: 6px 12px; border-radius: 7px; border: 1px solid #1e2024; background: #16181b; color: var(--gg-mute); cursor: pointer; }
+.gg-filter b { color: var(--gg-mid); font-weight: 700; }
+.gg-filter.on { border-color: #2b2e33; background: #1a1c1f; color: var(--gg-head); }
+.gg-filter.on b { color: var(--gg-mint); }
+.gg-scroll { overflow-x: auto; }
+/* the eight columns need 582px (348 fixed + the name's 150 floor + 56 of gaps + 28 of row padding) */
+.gg-grid { min-width: 600px; }
+/* one template for the header row and every body row: time · launch · byrs · curve · smt · snipe · tax · verdict · why */
+/* feed: age · launch · trades · buyers · smart · dev · snipe · tax — one string, shared by the header and every row.
+   Trades is a count, so it takes a number column; the 126px the block meter needed goes to the name. */
+.gg-cols { display: grid; grid-template-columns: 62px minmax(150px, 1fr) 46px 50px 44px 50px 52px 44px; gap: 8px; }
+/* the tape holds the newest launches and does not grow: new rows replace the oldest inside a fixed frame */
+/* the tape flows with the page : no box of its own to scroll inside */
+.gg-row .c-vd { white-space: nowrap; }
+.gg-row .c-launch { overflow: hidden; }
+.gg-row .c-launch .nm { max-width: 14ch; flex: 0 1 auto; }      /* the name gives way (ellipsis), the ticker is shown whole */
+.gg-row .c-launch .sy { flex: none; }
+.gg-row .c-pair { color: #6b7076; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* not sticky: .gg-scroll owns overflow-x, which makes it the scroll container and pins nothing vertically */
+.gg-thead { padding: 8px 14px; border-top: 1px solid var(--gg-l07); border-bottom: 1px solid var(--gg-l07); background: var(--gg-deep); font-family: var(--gg-mono); font-size: var(--gg-lbl); letter-spacing: .02em; line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-row { align-items: center; padding: 6px 14px; border-bottom: 1px solid rgba(255, 255, 255, .035); background: transparent; cursor: pointer; font-family: var(--gg-mono); font-size: var(--gg-m12); font-weight: 400; line-height: var(--gg-lh-row); }
+.gg-row:hover { background-color: rgba(255, 255, 255, .05); }
+.gg-row.sel { background-color: rgba(255, 255, 255, .06); }
+/* shading (highlight.ts): --o text brightness, --tint background wash; fl-* a short flash on a burst of buys / graduation */
+.gg-row { background-image: linear-gradient(90deg, var(--tint, transparent), transparent 75%); }
+.gg-row > div { opacity: var(--o, 1); transition: opacity .8s ease; }
+.gg-row.fl-buy { animation: ggflbuy 1.4s ease-out; }
+.gg-row.fl-grad { animation: ggflgrad 1.4s ease-out; }
+@keyframes ggflbuy { from { background-color: rgba(46, 232, 154, .2); } to { background-color: transparent; } }
+@keyframes ggflgrad { from { background-color: rgba(124, 140, 255, .26); } to { background-color: transparent; } }
+.gg-row.row-in { animation: ggrowin .45s cubic-bezier(.2, .7, .2, 1) both; }
+.gg-row .c-time { color: var(--gg-mute); }
+.gg-row .c-launch { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+.gg-row .mk { width: 7px; flex: none; color: transparent; }
+.gg-row .nm { color: var(--gg-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-row .sy { color: var(--gg-mute); white-space: nowrap; }
+.gg-row .pr, .gg-tok-top .pr { color: #6b7076; white-space: nowrap; flex: none; }   /* the pair is always named: creators pick ETH, USDG, stock tokens… */
+.gg-row .num { text-align: right; color: var(--gg-mid); }
+.gg-row .dim { color: var(--gg-mute); }
+.gg-row .why { color: var(--gg-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg .r { text-align: right; }
+.gg .mint { color: var(--gg-mint); }
+.gg .red { color: var(--gg-red); }
+.gg .amber { color: var(--gg-amber); }
+.gg .blue { color: var(--gg-blue); }
+.gg .head { color: var(--gg-head); }
+.gg-empty { padding: 34px 14px; text-align: center; font-size: var(--gg-s13); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-cli { display: flex; align-items: center; gap: 9px; padding: 11px 14px; border-top: 1px solid var(--gg-l07); font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); min-width: 0; }
+.gg-cli .p { color: var(--gg-brand); }
+.gg-cli .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.gg-cli .caret { width: 7px; height: 14px; background: var(--gg-brand); animation: ggblinkcaret 1.1s steps(1, end) infinite; flex: none; }
+
+/* the column runs the full height of the feed row, so the sticky card inside it has somewhere to travel */
+.gg-side { flex: 0 0 400px; width: 400px; max-width: 100%; align-self: stretch; display: flex; flex-direction: column; gap: 10px; }
+.gg-card-close { display: none; }   /* only the phone sheet has something to close */
+.gg-box { border: 1px solid var(--gg-l07); border-radius: 18px; background: var(--gg-card); padding: 20px 20px 22px; }
+/* the card stays in view for the whole length of the feed */
+.gg-tok { position: sticky; top: 76px; }
+.gg-tok-top { display: flex; align-items: center; gap: 10px; }
+.gg-tok-top .nm { font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* ticker · pair chip on one mono line under the name — no age, no time */
+.gg-tok-sub { display: flex; align-items: center; gap: 7px; margin-top: 4px; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); }
+.gg-tok-sub .sy { color: var(--gg-mid); }
+.gg-tok-sub .sep { color: #4a4e54; }
+.gg-tok-sub .pair { padding: 2px 7px; border-radius: 5px; background: rgba(255, 255, 255, .05); color: var(--gg-soft); }
+.gg-chip { margin-left: auto; padding: 4px 9px; border-radius: 6px; font-family: var(--gg-mono); font-size: var(--gg-lbl); font-weight: 700; letter-spacing: .05em; line-height: var(--gg-lh-row); text-transform: uppercase; background: #1a1c1f; color: var(--gg-mute); white-space: nowrap; }
+.gg-chip.ready { background: rgba(46, 232, 154, .14); color: var(--gg-mint); }
+.gg-chip.near { background: rgba(255, 176, 32, .13); color: var(--gg-amber); }
+.gg-chip.graduated { background: rgba(124, 140, 255, .14); color: var(--gg-blue); }
+.gg-chip.held { background: rgba(255, 255, 255, .09); color: var(--gg-head); }
+.gg-links { display: flex; flex-wrap: wrap; gap: 5px; margin: 11px 0 12px; }
+.gg-link { display: flex; align-items: center; gap: 7px; font-size: var(--gg-s13); font-weight: 600; line-height: var(--gg-lh-row); padding: 6px 11px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .08); background: var(--gg-btn); color: var(--gg-soft) !important; transition: border-color .15s ease, color .15s ease, background .15s ease; cursor: pointer; }
+.gg-link:hover { border-color: rgba(255, 255, 255, .26); color: var(--gg-head) !important; background: #17181a; }
+.gg-link svg { width: 13px; height: 13px; display: block; flex: none; }
+.gg-tabs { display: flex; gap: 4px; margin-bottom: 12px; padding: 3px; border-radius: 10px; background: var(--gg-deep); border: 1px solid var(--gg-l06); }
+.gg-tabs button { flex: 1; font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; padding: 7px 10px; border-radius: 8px; border: 0; background: transparent; color: var(--gg-mute); cursor: pointer; }
+.gg-tabs button.on { background: rgba(255, 255, 255, .08); color: var(--gg-head); }
+.gg-facts { display: flex; flex-direction: column; gap: 7px; padding: 12px 0; border-top: 1px solid var(--gg-l07); border-bottom: 1px solid var(--gg-l07); font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); }
+.gg-facts .f { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; }
+.gg-facts .k { color: var(--gg-mute); }
+.gg-facts .v { color: var(--gg-text); min-width: 0; overflow-wrap: anywhere; }
+.gg-facts .meter { color: var(--gg-brand); letter-spacing: -.5px; }
+.gg-checks { display: flex; flex-direction: column; gap: 5px; }
+.gg-check { display: flex; align-items: baseline; gap: 9px; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); }
+.gg-check .m { width: 30px; flex: none; }
+.gg-check .k { color: var(--gg-mid); flex: 1; min-width: 0; }
+.gg-check .v { color: var(--gg-text); }
+.gg-check .w { color: var(--gg-mute); }
+/* coin card: the contract is a field with the copy button inside it, and it answers back */
+.gg-ca { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; padding: 7px 9px; border: 1px solid var(--gg-l07); border-radius: 9px; background: var(--gg-deep); font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); min-width: 0; transition: border-color .2s ease; }
+.gg-ca.ok { border-color: var(--gg-mint); }
+.gg-ca .p { flex: none; color: #4a4e54; }
+.gg-ca .a { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gg-text); }
+.gg-ca button { all: unset; display: inline-flex; align-items: center; gap: 5px; flex: none; cursor: pointer; color: var(--gg-soft); font-family: var(--gg-mono); font-size: var(--gg-m12); }
+.gg-ca button:hover { color: var(--gg-head); }
+.gg-ca.ok button { color: var(--gg-mint); }
+.gg-ca svg { width: 13px; height: 13px; display: block; flex: none; }
+/* coin card, strategies: one line per strategy, a line opens its checklist */
+.gg-takes { display: flex; flex-direction: column; }
+.gg-take { padding: 9px 0; border-bottom: 1px solid rgba(255, 255, 255, .05); }
+.gg-take.off { opacity: .55; }
+.gg-take .row { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: baseline; gap: 8px; cursor: pointer; font-family: var(--gg-sans); font-size: var(--gg-s13); }
+.gg-take .row:disabled { cursor: default; }
+/* 30px fit "early" and nothing else: "gradrun" and "trusted" need 51 and spilled onto the name  */
+.gg-take .id { width: 56px; flex: none; font-family: var(--gg-mono); font-size: var(--gg-m12); color: var(--gg-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-take .nm { flex: 1; min-width: 0; color: var(--gg-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-take .st { font-family: var(--gg-mono); font-size: var(--gg-m12); font-weight: 700; white-space: nowrap; }
+.gg-take .dim { color: var(--gg-mute); }
+.gg-take .why { margin: 3px 0 0 64px; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-take .gg-checks { margin: 9px 0 2px 64px; }
+/* ---- sheet ---- */
+.gg-backdrop { position: fixed; inset: 0; background: rgba(4, 6, 8, .55); z-index: 40; animation: ggfadein .22s ease both; }
+.gg-backdrop.out { animation: ggfadeout .22s ease both; }
+.gg-sheet { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 94vw); z-index: 41; background: var(--gg-deep); border-left: 1px solid rgba(255, 255, 255, .08); box-shadow: -24px 0 60px rgba(0, 0, 0, .55); display: flex; flex-direction: column; animation: ggsheetin .28s cubic-bezier(.16, .84, .32, 1) both; }
+.gg-sheet.out { animation: ggsheetout .22s cubic-bezier(.4, 0, 1, 1) both; }
+.gg-sheet-top { display: flex; align-items: center; gap: 10px; padding: 16px 18px 12px; border-bottom: 1px solid var(--gg-l06); }
+.gg-sheet-top .nm { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.gg-sheet-top input { width: 100%; min-width: 0; font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); background: var(--gg-btn); border: 1px solid rgba(255, 255, 255, .1); border-radius: 8px; padding: 7px 10px; outline: none; }
+.gg-sheet-top input:hover { border-color: rgba(255, 255, 255, .2); }
+.gg-sheet-top input:focus { border-color: rgba(255, 255, 255, .3); }
+.gg-sheet-top .sub { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); white-space: nowrap; }
+.gg-x { margin-left: auto; width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--gg-l09); background: var(--gg-btn); color: var(--gg-mid); cursor: pointer; font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; flex: none; }
+.gg-stabs { display: flex; gap: 4px; padding: 12px 18px 0; }
+.gg-stabs button { font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; padding: 8px 15px; border-radius: 8px; border: 1px solid #1a1c1f; background: #111214; color: var(--gg-mute); cursor: pointer; }
+.gg-stabs button.on { border-color: #2b2e33; background: #1e2024; color: var(--gg-head); }
+.gg-sheet-body { flex: 1; overflow-y: auto; padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
+.gg-grp { border: 1px solid var(--gg-l07); border-radius: 16px; background: var(--gg-card); padding: 18px 20px 20px; }
+.gg-grp .gl { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-brand); margin-bottom: 10px; }
+.gg-grp .fs { display: flex; flex-direction: column; gap: 7px; }
+/* ---- sheet: drop zone, five-cell stepper row, two-row footer, book sections ---- */
+.gg-drop { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 16px 18px 18px; border: 1px dashed rgba(255, 255, 255, .14); border-radius: 14px; background: transparent; color: var(--gg-brand); cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+.gg-drop:hover, .gg-drop.over { border-color: #3b3f45; background: rgba(255, 255, 255, .02); }
+.gg-drop svg { display: block; }
+.gg-drop .t { font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); }
+.gg-drop .b { font-size: var(--gg-s13); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-drop .c { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-soft); }
+.gg-or { display: flex; align-items: center; gap: 10px; }
+.gg-or .ln { flex: 1; height: 1px; background: var(--gg-l07); }
+/* label · − · value · unit · + : the value and its unit no longer share one cramped cell */
+.gg-fld { display: grid; grid-template-columns: minmax(0, 1fr) 26px 62px 30px 26px; gap: 6px; align-items: center; font-size: var(--gg-s13); }
+.gg-fld .fl { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-fld .st { width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--gg-l09); background: var(--gg-btn); color: var(--gg-mid); cursor: pointer; font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; padding: 0; transition: border-color .15s ease, color .15s ease; }
+.gg-fld .st:hover { border-color: rgba(255, 255, 255, .28); color: var(--gg-head); }
+.gg-fld .vv { width: 100%; min-width: 0; text-align: center; font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; color: var(--gg-text); background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 3px 0; outline: none; }
+.gg-fld .vv:focus { border-color: rgba(255, 255, 255, .2); background: var(--gg-btn); }
+.gg-fld .un { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); white-space: nowrap; }
+/* book: six stats in three columns, then open and closed as their own sections */
+.gg-sec { display: flex; align-items: baseline; gap: 10px; margin: 16px 0 6px; padding-bottom: 6px; border-bottom: 1px solid var(--gg-l07); }
+.gg-sec .n { margin-left: auto; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-pos { padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, .05); }
+.gg-pos.closed { opacity: .86; }
+.gg-pos .r1 { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); }
+.gg-pos .r1 .s { color: var(--gg-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-pos .r1 .pair { color: var(--gg-mute); }
+.gg-pos .r1 .p { min-width: 54px; text-align: right; font-weight: 700; }
+/* the exit reason on its own line, indented to the name column, so nothing runs off the edge */
+.gg-pos .r2 { margin-top: 2px; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-pos .r2 .why { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-bstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.gg-bstat { border: 1px solid var(--gg-l07); border-radius: 10px; background: var(--gg-card); padding: 9px 11px; }
+.gg-bstat .l { font-family: var(--gg-mono); font-size: var(--gg-lbl); line-height: var(--gg-lh-row); color: var(--gg-mute); margin-bottom: 3px; }
+.gg-bstat .v { font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); }
+/* pnl and pnl % carry their sign in colour; `.gg-bstat .v` above would otherwise win over the plain .mint / .red */
+.gg-bstat .v.mint { color: var(--gg-mint); }
+.gg-bstat .v.red { color: var(--gg-red); }
+.gg-sheet-foot .hint { flex: 1; min-width: 0; font-size: var(--gg-s13); line-height: var(--gg-lh-row); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-sheet-foot { border-top: 1px solid var(--gg-l06); background: #0b0c0e; padding: 12px 18px 14px; display: flex; flex-direction: column; gap: 10px; }
+.gg-sheet-foot .pass { font-size: var(--gg-s13); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-sheet-foot .pass b { color: #dfe3e5; font-weight: 700; }
+.gg-sheet-foot .row { display: flex; align-items: center; gap: 8px; }
+.gg-sbtn { font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; line-height: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--gg-l09); background: transparent; color: var(--gg-mute); cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease, filter .15s ease; }
+.gg-sbtn.del:hover, .gg-sbtn.del.confirm { border-color: rgba(255, 93, 74, .55); color: var(--gg-red); background: rgba(255, 93, 74, .07); }
+.gg-sbtn.discard { margin-left: auto; background: var(--gg-btn); color: var(--gg-mid); padding: 10px 15px; }
+.gg-sbtn.discard:hover { border-color: rgba(255, 255, 255, .28); color: var(--gg-head); background: #17181a; }
+.gg-sbtn.save { padding: 10px 20px; border-color: transparent; background: #1a1c1f; color: var(--gg-mute); }
+.gg-sbtn.save.dirty { background: var(--gg-brand); color: #0a0b0c; }
+.gg-sbtn.save.dirty:hover { filter: brightness(1.12); border-color: rgba(255, 255, 255, .35); }
+.gg-sbtn:disabled { opacity: .55; cursor: default; }
+
+/* ---- secondary pages ---- */
+.gg-page { padding: 48px 28px 60px; }
+/* a page with little on it is centred in what is left of the viewport, not stranded under the header */
+.gg-title { font-family: var(--gg-disp); font-size: var(--gg-d40); font-weight: 600; letter-spacing: -.03em; line-height: var(--gg-lh-head); color: var(--gg-head); margin-bottom: 14px; }
+.gg-lead { max-width: 680px; margin: 0 0 36px; font-size: var(--gg-s17); line-height: var(--gg-lh-prose); color: var(--gg-soft); }
+.gg-autogrid { display: grid; gap: 12px; }
+.gg-step .i { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); margin-bottom: 12px; }
+.gg-step .t { font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); margin-bottom: 8px; }
+.gg-step .b { font-size: var(--gg-s15); line-height: var(--gg-lh-prose); color: var(--gg-soft); }
+.gg-kv { display: flex; align-items: baseline; gap: 10px; font-family: var(--gg-mono); font-size: var(--gg-m14); line-height: var(--gg-lh-head); }
+.gg-kv .k { color: var(--gg-mute); flex: 1; min-width: 0; }
+.gg-kv .v { color: var(--gg-text); }
+.gg-never { display: flex; align-items: baseline; gap: 10px; font-size: var(--gg-s15); line-height: var(--gg-lh-prose); color: var(--gg-soft); }
+/* ---- roadmap: one spine, a node a milestone ---- */
+/* shipped nodes are filled, the one in flight pulses, the rest stay hollow */
+.gg-code { grid-column: 1 / -1; border: 1px solid var(--gg-l07); border-radius: 18px; background: var(--gg-deep); padding: 18px 20px 20px; font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; line-height: var(--gg-lh-row); color: var(--gg-text); overflow-x: auto; white-space: nowrap; }
+
+.gg a.gg-cta, .gg a.gg-ghost { display: inline-flex; align-items: center; }
+.gg a.gg-ghost { color: var(--gg-brand); }
+
+/* ---- how it works: a deck, one idea a slide ---- */
+.gg-deck { border: 1px solid var(--gg-l07); border-radius: 22px; background: var(--gg-card); overflow: hidden; }
+.gg-deck-bar { height: 2px; background: var(--gg-l06); }
+.gg-deck-bar i { display: block; height: 100%; background: var(--gg-brand); transition: width .35s ease; }
+.gg-slide { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 44px; align-items: center; min-height: 500px; padding: 48px 48px 40px; animation: ggslide .38s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes ggslide { from { opacity: 0; transform: translateX(14px) } to { opacity: 1; transform: none } }
+.gg-slide .k { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); margin-bottom: 16px; }
+.gg-slide h2 { font-family: var(--gg-disp); font-size: var(--gg-d28); font-weight: 600; letter-spacing: -.03em; line-height: var(--gg-lh-head); color: var(--gg-head); margin: 0 0 18px; }
+.gg-slide p, .gg-slide li { font-size: var(--gg-s15); line-height: var(--gg-lh-prose); color: var(--gg-soft); }
+.gg-slide p { margin: 0 0 12px; max-width: 540px; }
+.gg-slide ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.gg-slide .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.gg-slide .vis { min-width: 0; }
+/* the deck's toggles are airy — larger hit areas, generous padding, a hover state, and an active
+   state carried by a light background and a border rather than a filled block */
+.gg-deck-nav { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-top: 1px solid var(--gg-l06); }
+.gg-deck-nav .gg-ghost { min-height: 44px; padding: 0 18px; border-radius: 10px; transition: border-color .2s ease, background .2s ease, color .2s ease; }
+.gg-deck-nav .gg-ghost:hover:not(:disabled) { border-color: rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .04); color: var(--gg-head); }
+.gg-dots { display: flex; align-items: center; gap: 2px; margin: 0 auto; }
+.gg-dots button { display: flex; align-items: center; justify-content: center; width: 30px; height: 44px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.gg-dots button::before { content: ''; width: 8px; height: 8px; border-radius: 999px; border: 1px solid transparent; background: rgba(255, 255, 255, .16); transition: width .25s ease, background .2s ease, border-color .2s ease; }
+.gg-dots button:hover::before { background: rgba(255, 255, 255, .34); }
+.gg-dots button.on { width: 44px; }
+.gg-dots button.on::before { width: 26px; background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .34); }
+.gg-vcap { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gg-numtile { border: 1px solid var(--gg-l07); border-radius: 14px; background: var(--gg-deep); padding: 18px 18px 16px; min-width: 0; }
+.gg-numtile .v { font-family: var(--gg-mono); font-size: var(--gg-m20); font-weight: 500; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); white-space: nowrap; }
+.gg-numtile .l { margin-top: 4px; font-size: var(--gg-s13); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-funnel { display: flex; flex-direction: column; gap: 14px; }
+.gg-funnel .row { display: grid; grid-template-columns: 76px minmax(0, 1fr) 84px; gap: 12px; align-items: center; font-family: var(--gg-mono); font-size: var(--gg-m14); line-height: var(--gg-lh-head); }
+.gg-funnel .l { color: var(--gg-mute); }
+.gg-funnel .v { text-align: right; color: var(--gg-head); }
+.gg-funnel .bar { height: 26px; border-radius: 7px; background: var(--gg-deep); border: 1px solid var(--gg-l06); overflow: hidden; }
+.gg-funnel .bar i { display: block; height: 100%; background: rgba(200, 205, 208, .35); }
+.gg-funnel .bar i.g { background: var(--gg-mint); }
+.gg-flow { display: flex; flex-direction: column; gap: 6px; }
+.gg-flow .n { display: flex; justify-content: space-between; gap: 14px; border: 1px solid var(--gg-l07); border-radius: 12px; background: var(--gg-deep); padding: 13px 16px; font-family: var(--gg-mono); font-size: var(--gg-m14); line-height: var(--gg-lh-head); color: var(--gg-head); }
+.gg-flow .n span { color: var(--gg-mute); text-align: right; }
+.gg-flow .a { text-align: center; font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-houses { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gg-houses .h { border: 1px solid var(--gg-l07); border-radius: 14px; background: var(--gg-deep); padding: 14px 16px 16px; min-width: 0; }
+.gg-houses .id { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-houses .n { margin: 4px 0 8px; font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 600; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-head); }
+.gg-houses .r { font-size: var(--gg-s13); line-height: var(--gg-lh-prose); color: var(--gg-soft); }
+
+/* ---- docs ---- */
+.gg-docs { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 40px; align-items: start; }
+/* only the content scrolls: the nav holds under the header and marks the section you are in */
+.gg-toc { position: sticky; top: 76px; align-self: flex-start; display: flex; flex-direction: column; gap: 14px; }
+.gg-toc .grp { display: flex; flex-direction: column; gap: 1px; border-left: 1px solid rgba(255, 255, 255, .08); }
+.gg-toc .h { margin: 0 0 6px 12px; font-family: var(--gg-mono); font-size: var(--gg-lbl); font-weight: 700; letter-spacing: .05em; line-height: var(--gg-lh-row); text-transform: uppercase; color: var(--gg-mute); }
+.gg-toc a { padding: 6px 12px; margin-left: -1px; border-left: 2px solid transparent; font-size: var(--gg-s13); color: var(--gg-soft); }
+.gg-toc a:hover { color: var(--gg-head); background: rgba(255, 255, 255, .04); }
+.gg-toc a.on { border-left-color: var(--gg-head); color: var(--gg-head); background: rgba(255, 255, 255, .03); }
+/* each group of sections opens like a man page */
+.gg-man { margin: 0 0 22px; padding-bottom: 12px; border-bottom: 1px solid var(--gg-l07); display: flex; align-items: baseline; gap: 14px; }
+.gg-man .t { font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; color: var(--gg-head); }
+.gg-doc { min-width: 0; max-width: 720px; }
+.gg-doc section { scroll-margin-top: 92px; margin-bottom: 56px; }
+.gg-doc h2 { font-family: var(--gg-disp); font-size: var(--gg-d28); font-weight: 600; letter-spacing: -.03em; line-height: var(--gg-lh-head); color: var(--gg-head); margin: 0 0 14px; }
+.gg-doc h3 { scroll-margin-top: 92px; font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; letter-spacing: -.02em; line-height: var(--gg-lh-head); color: var(--gg-brand); margin: 28px 0 10px; }
+.gg-doc p, .gg-doc li { font-size: var(--gg-s15); line-height: var(--gg-lh-prose); color: var(--gg-soft); }
+.gg-doc p { margin: 0 0 14px; }
+.gg-doc ol, .gg-doc ul { margin: 0 0 16px; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+.gg-doc b { color: var(--gg-head); font-weight: 600; }
+.gg-doc a { text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .25); text-underline-offset: 3px; }
+.gg-doc code, .gg-param code { font-family: var(--gg-mono); font-size: var(--gg-m14); color: var(--gg-head); background: rgba(255, 255, 255, .06); padding: 1px 5px; border-radius: 5px; }
+.gg-pre { margin: 0 0 16px; border: 1px solid var(--gg-l07); border-radius: 14px; background: var(--gg-deep); padding: 14px 18px; font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; line-height: var(--gg-lh-row); color: var(--gg-text); overflow-x: auto; white-space: pre; }
+.gg-pre .c { color: var(--gg-mute); }
+.gg-note { margin: 0 0 16px; padding: 10px 14px; border-left: 2px solid var(--gg-amber); border-radius: 0 10px 10px 0; background: rgba(255, 176, 32, .05); font-size: var(--gg-s13); line-height: var(--gg-lh-prose); color: var(--gg-soft); }
+/* one card a parameter: key and unit on the head line, its off value right-aligned, the example in an inset box */
+.gg-params { display: flex; flex-direction: column; gap: 10px; margin: 0 0 18px; }
+.gg-param { border: 1px solid var(--gg-l07); border-radius: 12px; background: var(--gg-card); padding: 14px 16px 15px; }
+.gg-param .h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.gg-param .k { font-family: var(--gg-mono); font-size: var(--gg-m14); font-weight: 500; color: var(--gg-head); overflow-wrap: anywhere; }
+.gg-param .u { font-family: var(--gg-mono); font-size: var(--gg-lbl); line-height: var(--gg-lh-row); color: var(--gg-mute); }
+.gg-param .off { margin-left: auto; font-family: var(--gg-mono); font-size: var(--gg-lbl); line-height: var(--gg-lh-row); color: var(--gg-mute); white-space: nowrap; }
+.gg-param .d { margin-top: 8px; font-size: var(--gg-s15); line-height: var(--gg-lh-prose); color: var(--gg-soft); min-width: 0; }
+.gg-param .ex { margin-top: 10px; padding: 9px 11px; border: 1px solid var(--gg-l06); border-radius: 9px; background: var(--gg-deep); font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-row); color: var(--gg-text); overflow-x: auto; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .gg-slide { grid-template-columns: 1fr; gap: 26px; min-height: 0; padding: 28px 22px 26px; }
+  .gg-docs { grid-template-columns: 1fr; gap: 20px; }
+  .gg-toc { position: static; flex-direction: row; flex-wrap: wrap; gap: 6px 18px; }
+  .gg-param { grid-template-columns: 1fr; gap: 6px; }
+}
+@media (max-width: 520px) {
+  .gg-nums, .gg-houses { grid-template-columns: 1fr; }
+  .gg-deck-nav { padding: 12px 14px; }
+}
+
+/* ---- footer ---- */
+/* the footer is the last row of the column shell: `auto` pins it to the bottom of a short page */
+.gg-foot { margin-top: auto; border-top: 1px solid var(--gg-l07); background: var(--gg-deep); }
+.gg-foot .top { padding: 30px 28px 34px; display: grid; grid-template-columns: minmax(230px, 1.5fr) repeat(3, minmax(120px, 1fr)); gap: 26px 44px; align-items: start; }
+.gg-foot .brand { display: flex; align-items: center; gap: 9px; font-family: var(--gg-disp); font-size: var(--gg-d20); font-weight: 700; letter-spacing: -.045em; line-height: 1; color: var(--gg-head); }
+.gg-foot .brand span { color: var(--gg-brand); }
+.gg-foot .about { font-family: var(--gg-mono); font-size: var(--gg-m12); line-height: var(--gg-lh-prose); color: var(--gg-mute); margin-top: 12px; max-width: 320px; }
+.gg-foot .col { display: flex; flex-direction: column; gap: 9px; }
+.gg-foot .col .gg-lbl { margin-bottom: 1px; }
+.gg-foot .col a { font-size: var(--gg-s13); color: var(--gg-soft); }
+.gg-foot .col a:hover { color: var(--gg-head); }
+
+/* ---- narrow screens: the side card drops under the feed ---- */
+@media (max-width: 980px) {
+  .gg-side { position: static; flex: 1 1 100%; width: 100%; }
+}
+/* ---- mobile: the tape becomes a card list, the coin card a sheet from the bottom ---- */
+@media (max-width: 768px) {
+  .gg { --gg-d40: 28px; --gg-d28: 20px; }
+
+  /* the eight-column grid does not survive 390px: age, then the name, then the meter and buyers */
+  .gg-thead { display: none; }
+  .gg-row { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 11px 16px; align-items: baseline; }
+  .gg-row > :nth-child(1) { grid-area: 1 / 1; }
+  .gg-row > :nth-child(2) { grid-area: 2 / 1 / 3 / 3; }
+  .gg-row > :nth-child(3) { grid-area: 3 / 1; }
+  .gg-row > :nth-child(4) { grid-area: 3 / 2; }
+  .gg-row > :nth-child(3)::after { content: ' trades'; color: var(--gg-mute); }
+  .gg-row > :nth-child(4)::after { content: ' buyers'; color: var(--gg-mute); }
+  .gg-row > :nth-child(5), .gg-row > :nth-child(6), .gg-row > :nth-child(7), .gg-row > :nth-child(8) { display: none; }
+  .gg-row .c-launch .nm { max-width: none; }
+
+  /* the coin card comes up over the page and closes; it is in the flow again above this width */
+  .gg-side { position: fixed; inset: auto 0 0 0; width: 100%; max-height: 86vh; overflow-y: auto; z-index: 42;
+    background: var(--gg-deep); border-top: 1px solid var(--gg-l09); border-radius: 16px 16px 0 0; padding: 0 12px 12px;
+    transform: translateY(101%); transition: transform .28s cubic-bezier(.16, .84, .32, 1); }
+  .gg-side.open { transform: none; }
+  .gg-card-close { display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1;
+    width: 100%; min-height: 44px; margin-bottom: 6px; border: 0; border-radius: 0 0 10px 10px; background: var(--gg-deep);
+    color: var(--gg-mute); font-family: var(--gg-sans); font-size: var(--gg-btn-t); font-weight: 700; cursor: pointer; }
+
+  .gg-sheet { width: 100vw; max-width: 100vw; }
+  .gg-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* hit targets never below 44px */
+  .gg-filter, .gg-ghost, .gg-cta, .gg-sbtn, .gg-card-new { min-height: 44px; }
+
+  .gg-btn { height: 52px; padding: 0 22px; font-size: 16px; }
+}
+@media (max-width: 640px) {
+  .gg-hdr .wrap { padding: 12px 16px; gap: 10px 14px; }
+  .gg-nav { order: 3; width: 100%; overflow-x: auto; }
+  .gg-strats, .gg-home, .gg-page { padding-left: 16px; padding-right: 16px; }
+  .gg-band > .wrap { padding: 0 16px; }
+  .gg-cards { grid-template-columns: minmax(0, 1fr); }
+  .gg-foot .top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; }
+  .gg-foot .brandcol { grid-column: 1 / -1; }
+}

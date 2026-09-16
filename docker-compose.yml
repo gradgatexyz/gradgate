@@ -1,0 +1,28 @@
+# gradgate with postgres: `docker compose up`, then http://127.0.0.1:8765
+# The port is published on 127.0.0.1 only, so edits from the terminal page are allowed (GRADGATE_ALLOW_EDIT).
+# Postgres keeps the books and the last 24 hours; your strategies live in the container, so export them before a rebuild.
+services:
+  engine:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/gradgate
+      GRADGATE_ALLOW_EDIT: "1"
+    ports:
+      - "127.0.0.1:8765:8765"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gradgate
+    volumes:
+      - gradgate-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      retries: 20
+volumes:
+  gradgate-pg:
