@@ -42,7 +42,7 @@ LIVE_POS_PATH = os.path.join(os.path.dirname(__file__), "live_positions.json")
 def risk() -> dict:
     """Limits, hot-reloaded from risk.json on every check (no restart needed); env values are the fallback."""
     try:
-        RISK.update({k: type(RISK[k])(v) for k, v in json.load(open(RISK_PATH)).items() if k in RISK})
+        RISK.update({k: type(RISK[k])(v) for k, v in json.load(open(RISK_PATH, encoding="utf-8")).items() if k in RISK})
     except Exception:
         pass
     return RISK
@@ -110,9 +110,9 @@ class Engine:
     # ---- persistence ------------------------------------------------------------------------
     def load(self):
         if os.path.exists(PATH):
-            self.strats = json.load(open(PATH))
+            self.strats = json.load(open(PATH, encoding="utf-8"))
         else:
-            self.strats = [normalize(s) for s in (json.load(open(DEFAULT_PATH)) if os.path.exists(DEFAULT_PATH) else [])]; self.save()
+            self.strats = [normalize(s) for s in (json.load(open(DEFAULT_PATH, encoding="utf-8")) if os.path.exists(DEFAULT_PATH) else [])]; self.save()
         for s in self.strats:
             self.books.setdefault(s["id"], Book(s.get("cash", 2.0)))
         self.restore_live()
@@ -122,7 +122,7 @@ class Engine:
         # serialise first, then swap the file in whole: an unclosed handle left the file one state behind the book (16.09.2026)
         try:
             text = json.dumps([dict(p, strategy=sid) for sid, b in list(self.books.items()) for p in list(b.positions.values()) if p.get("live")], indent=1)
-            with open(LIVE_POS_PATH + ".tmp", "w") as f: f.write(text)
+            with open(LIVE_POS_PATH + ".tmp", "w", encoding="utf-8") as f: f.write(text)
             os.replace(LIVE_POS_PATH + ".tmp", LIVE_POS_PATH)
         except Exception:
             pass
@@ -131,7 +131,7 @@ class Engine:
         """Re-attach live positions saved by a previous process; the indexer re-registers their tokens on demand."""
         self.pending_restore = []
         try:
-            rows = json.load(open(LIVE_POS_PATH))
+            rows = json.load(open(LIVE_POS_PATH, encoding="utf-8"))
         except Exception:
             return
         for p in rows:
@@ -141,7 +141,7 @@ class Engine:
 
     def save(self):
         """strategies.json holds the house set only; users' own strategies live in Postgres (accounts.py)."""
-        json.dump([s for s in self.strats if not s.get("owner")], open(PATH, "w"), indent=1)
+        json.dump([s for s in self.strats if not s.get("owner")], open(PATH, "w", encoding="utf-8"), indent=1)
 
     def upsert(self, s: dict, owner: str | None = None) -> dict:
         """Add or replace a strategy. `owner` tags a strategy with who made it; a self-hosted engine leaves it None."""

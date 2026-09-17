@@ -62,7 +62,7 @@ def test_size_over_the_limit_never_sends(no_orders, monkeypatch):
 
 def test_kill_file_stops_new_live_entries(no_orders, monkeypatch):
     monkeypatch.setenv("RH_PRIVATE_KEY", "0x" + "11" * 32)
-    open(S.KILL, "w").write("stop")
+    open(S.KILL, "w", encoding="utf-8").write("stop")
     e, s = engine("live", 0.01)
     assert open_once(e, s) is None
     assert not no_orders and "KILL" in e.books["x"].decisions[0]["reason"]
@@ -85,15 +85,21 @@ def test_armed_live_strategy_does_send(no_orders, monkeypatch):
 
 def test_house_strategies_ship_as_paper():
     import json
-    for s in json.load(open(os.path.join(ROOT, "engine", "strategies.default.json"))):
+    for s in json.load(open(os.path.join(ROOT, "engine", "strategies.default.json"), encoding="utf-8")):
         assert s.get("mode", "paper") == "paper", s["id"]
+
+
+def _py_files() -> list[str]:
+    """Every python file that ships: the engine, the command line and the tests."""
+    return (glob.glob(os.path.join(ROOT, "engine", "**", "*.py"), recursive=True)
+            + glob.glob(os.path.join(ROOT, "gradgate", "*.py")) + glob.glob(os.path.join(ROOT, "tests", "*.py")))
 
 
 def key_readers() -> set[str]:
     """Every file that reads RH_PRIVATE_KEY out of the environment."""
     found = set()
     for f in glob.glob(os.path.join(ROOT, "engine", "**", "*.py"), recursive=True) + glob.glob(os.path.join(ROOT, "gradgate", "*.py")):
-        for node in ast.walk(ast.parse(open(f).read())):
+        for node in ast.walk(ast.parse(open(f, encoding="utf-8").read())):
             if isinstance(node, ast.Constant) and node.value == "RH_PRIVATE_KEY":
                 found.add(os.path.relpath(f, ROOT))
     return found
@@ -104,3 +110,17 @@ def test_only_known_places_read_the_key():
     # address; the cli refuses to send without it and its doctor shows the address.
     assert key_readers() <= {"engine/exec_pons.py", "engine/strategies.py", "engine/indexer.py", "engine/trade.py", "gradgate/cli.py"}
     assert "engine/server.py" not in key_readers() and "engine/store.py" not in key_readers()
+
+
+def test_every_text_file_is_opened_as_utf8():
+    """Windows opens text files in the locale's encoding (cp1252) unless told otherwise: a strategy name, a token symbol
+    or a comment outside latin-1 then crashes the read. CI caught it on windows-latest, 17.09.2026."""
+    bad = []
+    for f in _py_files():
+        for node in ast.walk(ast.parse(open(f, encoding="utf-8").read())):
+            if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "open"): continue
+            mode = node.args[1].value if len(node.args) > 1 and isinstance(node.args[1], ast.Constant) else "r"
+            if "b" in str(mode): continue                               # bytes: no encoding to pick
+            if not any(k.arg == "encoding" for k in node.keywords):
+                bad.append(f"{os.path.relpath(f, ROOT)}:{node.lineno}")
+    assert not bad, "open() without encoding='utf-8': " + ", ".join(bad)

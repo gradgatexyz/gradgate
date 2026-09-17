@@ -5,7 +5,7 @@ import re
 import strategies as S
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DOC = open(os.path.join(ROOT, "docs", "STRATEGIES.md")).read()
+DOC = open(os.path.join(ROOT, "docs", "STRATEGIES.md"), encoding="utf-8").read()
 
 
 def documented() -> set[str]:
@@ -26,5 +26,5 @@ def test_every_cli_command_is_documented():
     from gradgate import cli
     import inspect
     commands = set(re.findall(r'sub\.add_parser\("([a-z]+)"', inspect.getsource(cli.main)))
-    doc = open(os.path.join(ROOT, "docs", "COMMANDS.md")).read()
+    doc = open(os.path.join(ROOT, "docs", "COMMANDS.md"), encoding="utf-8").read()
     assert {c for c in commands if f"gradgate {c}" not in doc} == set()

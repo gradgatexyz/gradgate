@@ -23,7 +23,7 @@ def test_kill_blocks_buys_not_sells(tmp_path, monkeypatch):
     import types
     from gradgate import cli
     monkeypatch.setattr(cli, "ENGINE_DIR", str(tmp_path))
-    open(tmp_path / "KILL", "w").write("stop")
+    open(tmp_path / "KILL", "w", encoding="utf-8").write("stop")
     a = types.SimpleNamespace(yes=True)
     assert cli._confirm(a, "buy") is False
     assert cli._confirm(a, "sell", entry=False) is True

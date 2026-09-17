@@ -245,13 +245,13 @@ async def img(cid: str):
                 if not got: return False
                 data, ctype = got
                 with _img_lock:
-                    open(path + ".tmp", "wb").write(data); open(path + ".type", "w").write(ctype); os.replace(path + ".tmp", path)
+                    open(path + ".tmp", "wb").write(data); open(path + ".type", "w", encoding="utf-8").write(ctype); os.replace(path + ".tmp", path)
                 return True
         ok = await asyncio.to_thread(work)
         if not ok:
             _img_miss[cid] = time.time()
             return Response(status_code=404, headers={"cache-control": "public, max-age=300"})
-    ctype = open(path + ".type").read() if os.path.exists(path + ".type") else "image/png"
+    ctype = open(path + ".type", encoding="utf-8").read() if os.path.exists(path + ".type") else "image/png"
     return Response(open(path, "rb").read(), media_type=ctype, headers={"cache-control": "public, max-age=604800, immutable"})
 
 
@@ -307,7 +307,7 @@ def reset_strategy(sid: str, request: Request):
 def kill(request: Request):
     import strategies
     if not _local(request): return JSONResponse({"error": "the kill switch works from the engine's own machine"}, status_code=403)
-    open(strategies.KILL, "w").write(str(time.time())); return JSONResponse({"kill": True})
+    open(strategies.KILL, "w", encoding="utf-8").write(str(time.time())); return JSONResponse({"kill": True})
 
 
 @app.delete("/api/kill")

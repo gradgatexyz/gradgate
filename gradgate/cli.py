@@ -35,7 +35,7 @@ console = Console(highlight=False)
 def load_env(path: str = os.path.join(ROOT, ".env")) -> bool:
     """KEY=value lines into the environment; a variable already set in the shell wins."""
     if not os.path.exists(path): return False
-    for line in open(path):
+    for line in open(path, encoding="utf-8"):
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line: continue
         k, v = line.split("=", 1)

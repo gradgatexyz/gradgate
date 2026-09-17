@@ -15,7 +15,7 @@ def test_normalize_fills_and_drops():
 
 
 def test_house_strategies_are_complete():
-    house = json.load(open(os.path.join(os.path.dirname(S.__file__), "strategies.default.json")))
+    house = json.load(open(os.path.join(os.path.dirname(S.__file__), "strategies.default.json"), encoding="utf-8"))
     assert [s["id"] for s in house] == ["early", "smart", "gradrun", "trusted"]
     for s in house:
         n = S.normalize(s)

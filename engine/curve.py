@@ -11,7 +11,7 @@ import json, os
 FEE = 0.01
 _p = {"V0": 2.0, "T0": 1.07e9}
 try:
-    _p.update(json.load(open(os.path.join(os.path.dirname(__file__), "curve_params.json"))))
+    _p.update(json.load(open(os.path.join(os.path.dirname(__file__), "curve_params.json"), encoding="utf-8")))
 except Exception:
     pass
 V0, T0 = float(_p["V0"]), float(_p["T0"])
