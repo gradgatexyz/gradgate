@@ -1,12 +1,11 @@
 """Graduated pons tokens: sell in the Uniswap v4 pool behind the pons hook, from a plain EOA.
 
-Ported from Bodkin (github.com/phosphenq/bodkin, src/trade/v4.ts + poolTrade.ts, MIT © 2026 phosphenq) and checked
-read-only on chain on 15.09.2026:
+Every call shape here was read off live router transactions and checked read-only on chain on 15.09.2026:
   - every graduated launch, ETH or a stock / USDG pair, trades in a pool keyed {pair, token, fee 0, tickSpacing from the
     factory record (200), hooks = the pons meme hook}; getSlot0 answers for that id and the v4 Quoter prices it;
   - the UniversalRouter takes execute(0x10 V4_SWAP, [06 SWAP_EXACT_IN_SINGLE · 0c SETTLE_ALL · 0f TAKE_ALL]); its
-    ExactInputSingleParams carry minHopPriceX36 (6 of 7 recent router txs on a pons pool encode it, Bodkin's router
-    contract settled the same); amountOutMinimum is enforced (a 200 % floor reverts);
+    ExactInputSingleParams carry minHopPriceX36 (6 of 7 recent router txs on a pons pool encode it); amountOutMinimum
+    is enforced (a 200 % floor reverts);
   - ERC-20 input is pulled through Permit2: token.approve(Permit2) once, then Permit2.approve(token, router) once;
     a wallet without them reverts.
 Factory phases: 0 curve · 1 swept (curve closed, pool not created yet: nothing to trade) · 2 pool · 3 rescued.

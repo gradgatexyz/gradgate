@@ -6,7 +6,7 @@ thanks for looking. gradgate is small on purpose; changes that keep it readable 
 
 ```bash
 ./install.sh
-.venv/bin/pip install -e ".[dev]"
+.venv/bin/pip install -e ".[dev]"      # windows: .venv\Scripts\pip
 .venv/bin/pytest -q
 ```
 

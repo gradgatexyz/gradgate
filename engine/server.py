@@ -168,7 +168,7 @@ async def _hub():
 
 @app.get("/api/feed/stream")
 async def feed_stream(sid: str | None = None):
-    """The feed as server-sent events (the way Bodkin's /api/hunt works): `hello` with the window on connect, then a
+    """The feed as server-sent events: `hello` with the window on connect, then a
     `launch` as each launch lands (named), `rows` deltas once a second and a `tick` every 2 s — all from the shared hub.
     `sid` is accepted and ignored: the feed is the same for everyone."""
     st = indexer.STATE

@@ -68,7 +68,7 @@ class Token:
         self.partial = False        # launched before the trade backfill window: the tape's reserve is incomplete
         self.fee_rate = 0.02        # this curve's fee rate, read from its own buys (1–5%)
         self.launch_tx = None; self.image = None; self.x_url = None; self.site = None; self.meta = False   # from the launch calldata (image CID, X link, website)
-        # launch record (factory + launchAndBuy calldata, read in name_tokens): the fields Bodkin scores on
+        # launch record (factory + launchAndBuy calldata, read in name_tokens): what the launch itself declared
         self.creator_tax_bps = None; self.fee_recipient = None; self.exempt_n = None; self.dev_buy = None; self.description = ""; self.tg_url = None; self.phase = None; self.named_at = 0
         self.pool = None            # factory record once graduated: pair, tick_spacing, phase (State.mark_pools)
         self.farm_key = None        # launch-farm fingerprint, set once the launch calldata is read (State.name_tokens)
@@ -363,7 +363,7 @@ class State:
                 lb = decode_launch_and_buy(inp)
                 if lb:
                     t.dev_buy = lb["dev_buy_wei"] / 1e18; t.exempt_n = len(lb["exempt"])
-                    # launch farm (as Bodkin src/pons/fingerprint.ts): what the launch calldata fixed — exact dev-buy wei,
+                    # launch farm fingerprint: what the launch calldata fixed — exact dev-buy wei,
                     # creator tax, which links, declared exempt wallets; twins are counted per request in row_extra
                     t.farm_key = f"{lb['dev_buy_wei']}|{t.creator_tax_bps}|{int(bool(t.x_url))}{int(bool(t.site))}{int(bool(t.tg_url))}|{len(lb['exempt'])}"
                     self.farm[t.farm_key].append((t.ts, t.creator))

@@ -1,5 +1,7 @@
 # live trading
 
+paths below are macOS and linux; on windows use `.venv\Scripts\gradgate` and `\` in paths.
+
 > **real money.** use a fresh wallet that holds only what you can lose. rules that did well on paper can lose live. nothing in gradgate is advice, and nothing promises a return.
 
 gradgate trades real money two ways: **strategies** you switch to live, and **manual trades** from the command line. both sign with the key in your `.env`, on your machine. without a key nothing can trade for real.

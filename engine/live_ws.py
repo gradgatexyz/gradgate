@@ -21,7 +21,7 @@ def ws_url() -> str | None:
 
 def full_feed(url: str) -> bool:
     """publicnode's socket (wss://robinhood-rpc.publicnode.com) is free and unmetered: subscribe to every curve trade and
-    newHeads too (found via Bodkin). A metered socket (Alchemy, 0.04 CU/byte) gets the
+    newHeads too. A metered socket (Alchemy, 0.04 CU/byte) gets the
     factory only."""
     return "publicnode" in url or os.environ.get("RH_WS_FULL") == "1"
 

@@ -37,9 +37,9 @@ Pons puts hundreds of launches an hour on Robinhood Chain. About 2 in 100 reach 
 
 ## quick start
 
-**double-click** — `Gradgate.command` on macOS. the first run installs everything (about a minute), every run after that opens the terminal. you need [python 3.11+](https://www.python.org/downloads/).
+**double-click** — `Gradgate.command` on macOS, `Gradgate.cmd` on windows. the first run installs everything (about a minute), every run after that opens the terminal. you need [python 3.11+](https://www.python.org/downloads/).
 
-**or in a terminal**
+**or in a terminal** (macOS · linux)
 
 ```bash
 git clone https://github.com/gradgatexyz/gradgate gradgate && cd gradgate
@@ -47,7 +47,15 @@ git clone https://github.com/gradgatexyz/gradgate gradgate && cd gradgate
 .venv/bin/gradgate start          # http://127.0.0.1:8765
 ```
 
-**or with docker** (postgres included, restarts take seconds)
+**windows** — powershell, same thing with windows paths:
+
+```powershell
+git clone https://github.com/gradgatexyz/gradgate gradgate; cd gradgate
+.\install.ps1
+.venv\Scripts\gradgate start     # http://127.0.0.1:8765
+```
+
+**or with docker** (any OS, postgres included, restarts take seconds)
 
 ```bash
 cp .env.example .env

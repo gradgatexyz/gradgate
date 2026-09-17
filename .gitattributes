@@ -1,0 +1,5 @@
+# shell scripts stay LF even when checked out on windows: CRLF breaks the shebang in wsl and git-bash
+*.sh text eol=lf
+Gradgate.command text eol=lf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf

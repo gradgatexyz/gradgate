@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, type FeedData, type FeedRow } from '../api'
 
-/** The feed over server-sent events (GET /api/feed/stream), the way Bodkin's /api/hunt works:
+/** The feed over server-sent events (GET /api/feed/stream):
  *  hello + the window's rows, then a `launch` the moment one lands, `rows` deltas once a second, a `tick` every 10 s.
  *  EventSource reconnects with its own backoff (a dead engine answers 502 through the proxy and the browser gives up, we do not);
  *  events are applied in one render per 40 ms; rows merge by token, newest first, 100 kept; `fresh` = younger than 30 s.

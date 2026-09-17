@@ -1,5 +1,7 @@
 # commands
 
+on windows the command lives at `.venv\Scripts\gradgate`; everything below is the same.
+
 `gradgate start` runs the engine; every other command reads the running engine or the chain. `--port` (default 8765, or `GRADGATE_PORT`) goes before the command: `gradgate --port 8777 hunt`.
 
 ## run
