@@ -89,6 +89,11 @@ def test_house_strategies_ship_as_paper():
         assert s.get("mode", "paper") == "paper", s["id"]
 
 
+def _rel(f: str) -> str:
+    """Repository-relative path with forward slashes, so a windows checkout reads the same as a unix one."""
+    return os.path.relpath(f, ROOT).replace(os.sep, "/")
+
+
 def _py_files() -> list[str]:
     """Every python file that ships: the engine, the command line and the tests."""
     return (glob.glob(os.path.join(ROOT, "engine", "**", "*.py"), recursive=True)
@@ -101,7 +106,7 @@ def key_readers() -> set[str]:
     for f in glob.glob(os.path.join(ROOT, "engine", "**", "*.py"), recursive=True) + glob.glob(os.path.join(ROOT, "gradgate", "*.py")):
         for node in ast.walk(ast.parse(open(f, encoding="utf-8").read())):
             if isinstance(node, ast.Constant) and node.value == "RH_PRIVATE_KEY":
-                found.add(os.path.relpath(f, ROOT))
+                found.add(_rel(f))
     return found
 
 
@@ -122,5 +127,5 @@ def test_every_text_file_is_opened_as_utf8():
             mode = node.args[1].value if len(node.args) > 1 and isinstance(node.args[1], ast.Constant) else "r"
             if "b" in str(mode): continue                               # bytes: no encoding to pick
             if not any(k.arg == "encoding" for k in node.keywords):
-                bad.append(f"{os.path.relpath(f, ROOT)}:{node.lineno}")
+                bad.append(f"{_rel(f)}:{node.lineno}")
     assert not bad, "open() without encoding='utf-8': " + ", ".join(bad)
